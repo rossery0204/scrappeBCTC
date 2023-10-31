@@ -1,0 +1,14 @@
+da2code:
+  outputs:
+    dev:
+      project: DA2code
+      keyfile: E:\20231\DA2\DA2code\conf\da2code-d81191527666.json
+      dataset: da2code
+      location: asia-southeast1
+      type: bigquery
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      method: service-account
+      priority: interactive
+      threads: 4
+  target: dev
