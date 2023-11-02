@@ -1,7 +1,7 @@
-da2code:
+default:
   outputs:
     dev:
-      project: DA2code
+      project: da2code
       keyfile: E:\20231\DA2\DA2code\conf\da2code-d81191527666.json
       dataset: da2code
       location: asia-southeast1
