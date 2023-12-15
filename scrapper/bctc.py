@@ -10,105 +10,123 @@ import os
 import pandas_gbq
 from unidecode import unidecode
 import re
+import logging
 
 class Report:
-    def __init__(self, url, years, table_id, project_id, coname):
+    def __init__(self, url, years, table_id, project_id, coname, logger:logging):
         self.url = url
         self.years = years
         self.table_id = table_id
         self.project_id = project_id
         self.coname = coname
+        self.logger = logger
 
     def validate_header(self, cell):
-        self.cell = cell
-        cell = re.sub("[0-9]", '', cell)
-        cell = re.sub("[+]", '', cell)
-        cell = cell.replace('.','')
-        cell = cell.replace(',','')
-        cell = cell.replace('-','')
-        cell = cell.replace('=','')
-        cell = cell.replace(')','')
-        cell = cell.replace('(','')
-        cell = cell.replace('I','')
-        cell = cell.replace(':','_')
-        cell = cell.replace('{','')
-        cell = cell.replace('}','')
-        cell = cell.replace('*','')
-        cell = cell.strip()
-        cell = cell.replace(' ','_')
+        try:
+            self.cell = cell
+            cell = re.sub("[0-9]", '', cell)
+            cell = re.sub("[+]", '', cell)
+            cell = cell.replace('.','')
+            cell = cell.replace(',','')
+            cell = cell.replace('-','')
+            cell = cell.replace('=','')
+            cell = cell.replace(')','')
+            cell = cell.replace('(','')
+            cell = cell.replace('I','')
+            cell = cell.replace(':','_')
+            cell = cell.replace('{','')
+            cell = cell.replace('}','')
+            cell = cell.replace('*','')
+            cell = cell.strip()
+            cell = cell.replace(' ','_')
+        except:
+            self.logger.error('Error occurred in Report.validate_header()')
         return cell
 
     def bs4_scrapper(self, url):
-        page = requests.get(url)
-        soup = BeautifulSoup(page.text,'html.parser')
-        df = self.get_table_contents(soup)
-        df = df.transpose().reset_index()
-        df.columns = df.iloc[0]
-        df = df[1:]
+        try:
+            page = requests.get(url)
+            soup = BeautifulSoup(page.text,'html.parser')
+            df = self.get_table_contents(soup)
+            df = df.transpose().reset_index()
+            df.columns = df.iloc[0]
+            df = df[1:]
+        except:
+            self.logger.error('Error occurred in Report.bs4_scrapper()')
         return df
 
     def get_table_headers(self, soup:BeautifulSoup):
-        headers = []
-        tb_header = soup.find('table', {'id':'tblGridData'})
-        row = tb_header.find('tr')
-        for cell in row.find_all('td'):
-            #chuẩn hóa để đẩy lên gbq
-            cell = cell.text.strip()
-            cell = unidecode(cell)
-            cell = cell.replace('-','_')
-            cell = cell.replace(' ','')
-            headers.append(cell+'_'+self.coname)
-        headers[0] = "Thoi_gian"
+        try:
+            headers = []
+            tb_header = soup.find('table', {'id':'tblGridData'})
+            row = tb_header.find('tr')
+            for cell in row.find_all('td'):
+                #chuẩn hóa để đẩy lên gbq
+                cell = cell.text.strip()
+                cell = unidecode(cell)
+                cell = cell.replace('-','_')
+                cell = cell.replace(' ','')
+                headers.append(cell+'_'+self.coname)
+            headers[0] = "Thoi_gian"
+        except:
+            self.logger.error('Error occurred in Report.get_table_headers()')
         return headers
 
     def get_table_contents(self, soup:BeautifulSoup):
-        tb_content = soup.find('table', {'id':'tableContent'})
-        headers = self.get_table_headers(soup)
-        df = pd.DataFrame(columns = headers)
-        rows = tb_content.find_all('tr')
-        for row in rows:
-            row_content = []
-            cell_number = 1
-            for cell in row.find_all('td',{'class':'b_r_c'}):
-                cell = cell.text.strip()
-                if (cell_number == 1):
-                    cell = self.validate_header(cell)
-                row_content.append(unidecode(cell))
-                cell_number += 1
-            if row_content:
-                length = len(df) + 1
-                df.loc[length] = row_content 
+        try:
+            tb_content = soup.find('table', {'id':'tableContent'})
+            headers = self.get_table_headers(soup)
+            df = pd.DataFrame(columns = headers)
+            rows = tb_content.find_all('tr')
+            for row in rows:
+                row_content = []
+                cell_number = 1
+                for cell in row.find_all('td',{'class':'b_r_c'}):
+                    cell = cell.text.strip()
+                    if (cell_number == 1):
+                        cell = self.validate_header(cell)
+                    row_content.append(unidecode(cell))
+                    cell_number += 1
+                if row_content:
+                    length = len(df) + 1
+                    df.loc[length] = row_content 
+        except:
+            self.logger.error('Error occurred in Report.get_table_contents()')
         return df
 
     def save_file(self, df):
-        print('---------------')
-        ## Mở ra khi cần lưu file local
-        # path = 'E:/20231/DA2/DA2code/data/raw_data/cashflow/' #thư mục lưu
-        # file_path = path + str(curr_year) + '.csv'
-        # if os.path.exists(file_path):
-        #     print("File da ton tai!")
-        #     os.remove(file_path)
-        # df.to_csv(file_path, index=False, encoding='utf-8-sig')
-        # print(df)
-        pandas_gbq.to_gbq(df, self.table_id, project_id=self.project_id,if_exists='append')
-        print("Đã lưu", self.table_id)
+        try:
+            ## Mở ra khi cần lưu file local
+            # path = 'E:/20231/DA2/DA2code/data/raw_data/cashflow/' #thư mục lưu
+            # file_path = path + str(curr_year) + '.csv'
+            # if os.path.exists(file_path):
+            #     print("File da ton tai!")
+            #     os.remove(file_path)
+            # df.to_csv(file_path, index=False, encoding='utf-8-sig')
+            # print(df)
+            pandas_gbq.to_gbq(df, self.table_id, project_id=self.project_id,if_exists='append')
+        except:
+            self.logger.error("Error occurred in Report.save_file()")
 
     def scrape_link(self):
-        driver = webdriver.Chrome()
-        driver.get(self.url)
-        for i in range(self.years):
-            count = 0
-            df = self.bs4_scrapper(driver.current_url)
-            # print(df)
-            # print("Column headers from list(df.columns.values):",list(df.columns.values))
-            self.save_file(df)
-            while (count < 4):
-                element = WebDriverWait(driver, 20).until(
-                    EC.presence_of_element_located((By.XPATH, "//a[contains(text(), 'Sau')]"))
-                )   
-                element.click()  
-                count += 1
-        driver.quit()
+        try:
+            driver = webdriver.Chrome()
+            driver.get(self.url)
+            for i in range(self.years):
+                count = 0
+                df = self.bs4_scrapper(driver.current_url)
+                # print(df)
+                # print("Column headers from list(df.columns.values):",list(df.columns.values))
+                self.save_file(df)
+                while (count < 4):
+                    element = WebDriverWait(driver, 20).until(
+                        EC.presence_of_element_located((By.XPATH, "//a[contains(text(), 'Sau')]"))
+                    )   
+                    element.click()  
+                    count += 1
+            driver.quit()
+        except:
+            self.logger.error("Error occurred in Report.scrape_link()")
 
 
     
