@@ -18,66 +18,62 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 from logging import Formatter
 
-def do_selection_1(project_id, logger:logging):
-    try:
-        coname = input("Nhap ten cong ty: ")
-        years = int(input("Nhap so nam muon lay du lieu: "))
+def do_selection_1(project_id):
+    coname = input("Nhap ten cong ty: ")
+    years = int(input("Nhap so nam muon lay du lieu: "))
 
-        #cashflow
-        url = input("Nhap url cashflow: ")
-        table_id='cashflow.'+coname
-        report = bctc.Report(url, years, table_id, project_id, coname, logger)
-        report.scrape_link()
+    #cashflow
+    url = input("Nhap url cashflow: ")
+    table_id='cashflow.'+coname
+    report = bctc.Report(url, years, table_id, project_id, coname)
+    report.scrape_link()
 
-        #pnl
-        url = input("Nhap url pnl: ")
-        table_id='pnl.'+coname
+    #pnl
+    url = input("Nhap url pnl: ")
+    table_id='pnl.'+coname
 
-        logging.info('Get PNL report: Cong ty:',coname,'; So nam:',years,'; Url:',url)
+    logging.info('Get PNL report: Cong ty:',coname,'; So nam:',years,'; Url:',url)
 
-        report = bctc.Report(url, years, table_id, project_id, coname, logger)
-        report.scrape_link()
-    except:
-        logger.error('Error occurred in do_selection_1()')
+    report = bctc.Report(url, years, table_id, project_id, coname)
+    report.scrape_link()
 
-def do_selection_2(project_id, logger:logging):
-    try:
-        coname = input("Nhap ten cong ty: ")
-        years = int(input("Nhap so nam muon lay du lieu: "))
-        date_range = input("Nhap khoang thoi gian theo dinh dang: DD/MM/YYYY - DD/MM/YYYY: ")
+def do_selection_2(project_id):
+    coname = input("Nhap ten cong ty: ")
+    years = int(input("Nhap so nam muon lay du lieu: "))
+    date_range = input("Nhap khoang thoi gian theo dinh dang: DD/MM/YYYY - DD/MM/YYYY: ")
 
-        #price
-        url = 'https://s.cafef.vn/lich-su-giao-dich-vnindex-1.chn#data'
-        table_id='price.'+coname
-        price = gia.Price(url, date_range, table_id, project_id, coname, logger)
-        price.scrape_link()
+    #price
+    url = 'https://s.cafef.vn/lich-su-giao-dich-vnindex-1.chn#data'
+    table_id='price.'+coname
+    price = gia.Price(url, date_range, table_id, project_id, coname)
+    price.scrape_link()
 
-        #cashflow
-        url = input("Nhap url: ")
-        table_id='cashflow.'+coname
-        report = bctc.Report(url, years, table_id, project_id, coname, logger)
-        report.scrape_link()
+    #cashflow
+    url = input("Nhap url cashflow: ")
+    table_id='cashflow.'+coname
+    report = bctc.Report(url, years, table_id, project_id, coname)
+    report.scrape_link()
 
-        #pnl
-        url = input("Nhap url: ")
-        table_id='pnl.'+coname
-        report = bctc.Report(url, years, table_id, project_id, coname, logger)
-        report.scrape_link()
-    except:
-        logger.error('Error occurred in do_selection_2()')
+    #pnl
+    url = input("Nhap url pnl: ")
+    table_id='pnl.'+coname
+    report = bctc.Report(url, years, table_id, project_id, coname)
+    report.scrape_link()
     
 def __main__():
 
-    #initialize the log settings
+    # #initialize the log settings
 
-    formatter = Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    logger = logging.getLogger('RotatingFileHandler')
+    # formatter = Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    # logger = logging.getLogger('RotatingFileHandler')
 
-    # Split log on Sunday everyweek
-    handler = TimedRotatingFileHandler('scrapper\\log\\time_log_file.log', when="w6", interval=1)
-    handler.setFormatter(formatter)
-    handler.setLevel(logging.DEBUG)
-    logger.addHandler(handler)
+    # # Split log on Sunday everyweek
+    # handler = TimedRotatingFileHandler('scrapper\\log\\time_log_file.log', when="w6", interval=1)
+    # handler.setFormatter(formatter)
+    # handler.setLevel(logging.DEBUG)
+    # logger.addHandler(handler)
+
+    logging.basicConfig(filename='scrapper\\log\\log_da2.log', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
     #Thong tin chung
     project_id = 'rawbctc'
@@ -89,15 +85,17 @@ def __main__():
         try:
             selection = int(input("Moi chon: "))
             if (selection == 1):
-                do_selection_1(project_id, logger)
+                do_selection_1(project_id)    
+                logging.info('Success to scrape by trigger')     
                 break
             elif (selection == 2):
-                do_selection_2(project_id, logger)
+                do_selection_2(project_id)
+                logging.info('Success to scrape by trigger')
                 break
             else:
                 continue
         except:
-            logger.error('Error occurred in main run_by_trigger.py')
+            logging.error('Fail to scrape by trigger')
 
 __main__()
 

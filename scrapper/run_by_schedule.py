@@ -23,29 +23,31 @@ def __main__():
     #get today date and format
     today = datetime.today().strftime('%d/%m/%Y - %d/%m/%Y')
 
-    #initialize the log settings
-    formatter = Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    logger = logging.getLogger('RotatingFileHandler')
+    # #initialize the log settings
+    # formatter = Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    # logger = logging.getLogger('RotatingFileHandler')
 
-    # Split log on Sunday everyweek
-    handler = TimedRotatingFileHandler('scrapper\\log\\time_log_file.log', when="w6", interval=1)
-    handler.setFormatter(formatter)
-    handler.setLevel(logging.DEBUG)
-    logger.addHandler(handler)
+    # # Split log on Sunday everyweek
+    # handler = TimedRotatingFileHandler('scrapper\\log\\time_log_file.log', when="w6", interval=1)
+    # handler.setFormatter(formatter)
+    # handler.setLevel(logging.DEBUG)
+    # logger.addHandler(handler)
+
+    logging.basicConfig(filename='scrapper\\log\\log_da2.log', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
     #Thong tin chung
     project_id = 'rawbctc'
 
     try:
         #Input cac cong ty muon theo doi gia hang ngay
-        coname_list = ['FPT', 'CMG', 'SAM']
+        coname_list = ['FPT', 'CMG', 'ELC']
         url = 'https://s.cafef.vn/lich-su-giao-dich-vnindex-1.chn#data'
         for coname in coname_list:
             table_id='price.'+coname
-            price = gia.Price(url, '15/12/2023 - 15/12/2023', table_id, project_id, coname, logger)
-            price.scrape_link()
-
+            price = gia.Price(url, today, table_id, project_id, coname)
+            price.scrape_link()        
+        logging.info("Succeed in scrapping price today")
     except:
-        logger.error('Error occurred in main run_by_schedule.py')
+        logging.error("Fail to scrappe price today")
 
 __main__()
