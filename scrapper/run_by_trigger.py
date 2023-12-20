@@ -9,7 +9,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 import os
 import pandas_gbq
 from unidecode import unidecode
-import re
+import re 
 import time
 from selenium.webdriver.common.action_chains import ActionChains
 import gia
@@ -73,7 +73,7 @@ def __main__():
     # handler.setLevel(logging.DEBUG)
     # logger.addHandler(handler)
 
-    logging.basicConfig(filename='scrapper\\log\\log_da2.log', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+    logging.basicConfig(filename='E:\\20231\\DA2\\DA2code\\scrapper\\log\\log_da2.log', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
     #Thong tin chung
     project_id = 'rawbctc'
