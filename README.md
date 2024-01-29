@@ -15,5 +15,6 @@ Sử dụng code transform trên dbt https://github.com/rossery0204/dbtDA2
 
 **Trực quan hóa trên Locker Studio**
 ![image](https://github.com/rossery0204/scrappeBCTC/assets/104888871/68725312-b60c-4510-baea-8f9996735f0c)
-![Uploading image.png…]()
+![image](https://github.com/rossery0204/scrappeBCTC/assets/104888871/8f44887d-521f-4ec6-8a88-98511a878076)
+
 
